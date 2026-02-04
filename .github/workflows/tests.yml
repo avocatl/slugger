@@ -1,0 +1,63 @@
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+name: testing
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**.md"
+      - "*.yml"
+      - "Makefile"
+      - "docs/*.md"
+      - ".gitignore"
+      - "LICENSE"
+      - ".github/*.yml"
+      - ".github/ISSUE_TEMPLATE/*.md"
+      - ".github/*.md"
+      - ".github/workflows/release.yml"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+      - "*.yml"
+      - "Makefile"
+      - "docs/*.md"
+      - ".gitignore"
+      - "LICENSE"
+      - ".github/*.yml"
+      - ".github/ISSUE_TEMPLATE/*.md"
+      - ".github/*.md"
+      - ".github/workflows/release.yml"
+jobs:
+  tests:
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        go: [1.x, 1.25.x]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # 6.0.1
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # 6.2.0
+        with:
+          go-version: ${{ matrix.go }}
+      # Get values for cache paths to be used in later steps
+      - id: cache-paths
+        run: |
+          echo "go-cache=$(go env GOCACHE)" >> $GITHUB_OUTPUT
+          echo "go-mod-cache=$(go env GOMODCACHE)" >> $GITHUB_OUTPUT
+      - name: Cache go modules
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: |
+            ${{ steps.cache-paths.outputs.go-cache }}
+            ${{ steps.cache-paths.outputs.go-mod-cache }}
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-
+      - run: go test -failfast -timeout 1m ./...

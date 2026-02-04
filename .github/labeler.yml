@@ -1,0 +1,24 @@
+tests:
+  - changed-files:
+      - any-glob-to-any-file: ["./*_test.go"]
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ["docs/*"]
+
+gh-actions:
+  - changed-files:
+      - any-glob-to-any-file: [".github/**/*.yml"]
+
+core:
+  - changed-files:
+      - any-glob-to-any-file: ["./*.go", "!./*_tests.go", "!./tools/*"]
+
+modules:
+  - changed-files:
+      - any-glob-to-any-file: ["go.*"]
+
+meta-files:
+  - changed-files:
+      - any-glob-to-any-file:
+          ["Taskfile", "README.md", "LICENSE", "SECURITY.md"]

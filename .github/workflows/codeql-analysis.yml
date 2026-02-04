@@ -1,0 +1,49 @@
+name: "CodeQL"
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "*.yml"
+      - "*.yaml"
+      - "Taskfile"
+      - "docs/*.md"
+      - ".gitignore"
+      - "LICENSE"
+      - ".github/*.yml"
+      - ".github/ISSUE_TEMPLATE/*.md"
+      - ".github/*.md"
+      - ".github/workflows/main.yml"
+      - ".github/workflows/release.yml"
+  schedule:
+    - cron: "21 11 * * 4"
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["go"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@81644f35ff20aa6b0e7b936f0e8716419ba7d295
+        with:
+          languages: "go"
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@81644f35ff20aa6b0e7b936f0e8716419ba7d295
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@81644f35ff20aa6b0e7b936f0e8716419ba7d295

@@ -1,0 +1,26 @@
+version: "3"
+
+tasks:
+  devtools:
+    desc: Intall go devtools
+    cmds:
+      - go mod -modfile=go.tool.mod -tool download
+
+  modules:
+    desc: Install go modules
+    cmds:
+      - go mod download
+    silent: true
+
+  test:
+    desc: Run unit tests
+    cmds:
+      - go test -v ./...
+    silent: true
+
+  gen-docs:
+    desc: Generate documentation
+    cmds:
+      - go tool -modfile=go.tool.mod gomarkdoc -o docs/README.md ./...
+      - git add --all
+      - "git commit --message 'chore(docs): update generated docs'"
